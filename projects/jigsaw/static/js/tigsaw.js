@@ -580,8 +580,8 @@ class Tigsaw {
         imageScaleThreshold = 0.8,
         stageWidth = document.querySelector(container).offsetWidth,
         stageHeight = document.querySelector(container).offsetHeight,
-        connectSoundSrc = '/static/audio/connect.wav',
-        successSoundSrc = '/static/audio/success.mp3',
+        connectSoundSrc = './static/audio/connect.wav',
+        successSoundSrc = './static/audio/success.mp3',
         
     }) {
         insertConnectSound(connectSoundSrc);
