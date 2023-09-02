@@ -264,6 +264,7 @@ function getRandomImageListener() {
     let eleFileLabel = document.querySelector('#uploadImage .file-label');
     let eleImageCategory = document.querySelectorAll('input[name="image-category"]');
     Array.from(eleImageCategory).forEach(ele => ele.addEventListener('change', () => {
+        eleConfigureSave.disabled = true;
         getImageSrc();
         eleFileName.innerText = 'No Image Uploaded';
         eleFileName.style.background = 'rgba(0,0,0,0)';
@@ -299,7 +300,6 @@ function generatePuzzle() {
 
 
 eleConfigureButton.addEventListener('click', () => {
-    eleConfigureSave.disabled = true;
     eleConfigurePanel.classList.add('is-active');
 })
 
