@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='viewport' content='width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0' />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔶</text></svg>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma-rtl.min.css">
+    <link rel='stylesheet' href='static/css/bulma-slider.min.css' />
+    <link rel='stylesheet' href='static/css/bulma-checkradio.min.css' />
+    <script src="https://unpkg.com/konva@8.3.13/konva.min.js"></script>
+    <script src='static/js/bulma-slider.min.js'></script>
+    <title>TIGSAW</title>
+</head>
+<style>
+*,*::before,*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+html,body {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+#container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: #58B8EC;
+}
+#buttonWrapper {
+    width: max-content;
+    height: max-content;
+    position: fixed;
+    left: 20px;
+    top: 20px;
+}
+</style>
+<body>
+    <div id='container'>
+    </div>
+    <div id='buttonWrapper'>
+        <button id='configureButton' class='button is-warning is-responsive is-outlined'>
+            <span class='icon'>⚙</span>
+            <span>&nbsp;&nbsp;Configure</span>
+        </button>
+        <button id='nextButton' class='button is-warning is-responsive is-outlined'>
+            <span class='icon'>♻</span>
+            <span>&nbsp;&nbsp;Next</span>
+        </button>
+    </div>
+    <div id='configurePanel' class='modal'>
+        <div class='modal-background'></div>
+        <div class='modal-card'>
+            <header class='modal-card-head'>
+                <p class='modal-card-title'>Configure</p>
+                <button id='cancelConfigure' class='delete'></button>
+            </header>
+            <section class='modal-card-body'>
+                <div class='field'>
+                    <label class='label'>Pieces Per Row</label>
+                    <div class='control'>
+                        <input id='rowCount' class='slider has-output is-fullwidth is-success' step='1' min='2' max='10' value='2' type='range'>
+                        <output for='rowCount'>2</output>
+                    </div>
+                </div>
+                <hr />
+                <div class='field'>
+                    <label class='label'>Pieces Per Column</label>
+                    <div class='control'>
+                        <input id='columnCount' class='slider has-output is-fullwidth is-success' step='1' min='2' max='10' value='2' type='range'>
+                        <output for='columnCount'>2</output>
+                    </div>
+                </div>
+                <hr />
+                <label class='label'>Pieces Place Style</label>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='placeStyleScattered' type='radio' name='placeStyle' value='scattered' />
+                    <label for='placeStyleScattered'>Place Pieces Scattered</label>
+                </div>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='placeStyleGatheredCenter' type='radio' name='placeStyle' value='gatheredCenter' />
+                    <label for='placeStyleGatheredCenter'>Place Pieces Gathered Center</label>
+                </div>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='placeStyleGatheredTop' type='radio' name='placeStyle' value='gatheredTop' checked />
+                    <label for='placeStyleGatheredTop'>Place Pieces Gathered Top</label>
+                </div>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='placeStyleGatheredBottom' type='radio' name='placeStyle' value='gatheredBottom' />
+                    <label for='placeStyleGatheredBottom'>Place Pieces Gathered Bottom</label>
+                </div>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='placeStyleGatheredLeft' type='radio' name='placeStyle' value='gatheredLeft' />
+                    <label for='placeStyleGatheredLeft'>Place Pieces Gathered Left</label>
+                </div>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='placeStyleGatheredRight' type='radio' name='placeStyle' value='gatheredRight' />
+                    <label for='placeStyleGatheredRight'>Place Pieces Gathered Right</label>
+                </div>
+                <hr />
+                <label class='label'>Image Categories</label>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='head' type='radio' name='image-category' value='head' checked/>
+                    <label for='head'>Head</label>
+                </div>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='animals' type='radio' name='image-category' value='animals' />
+                    <label for='animals'>Animals</label>
+                </div>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='fruits' type='radio' name='image-category' value='fruits' />
+                    <label for='fruits'>Fruits</label>
+                </div>
+                <div class='field'>
+                    <input class='is-checkradio is-block is-success' id='vegetables' type='radio' name='image-category' value='vegetables' />
+                    <label for='vegetables'>Vegetables</label>
+                </div>
+                <hr />
+                <label class='label'>Custom</label>
+                <div class='field'>
+                    <div id='uploadImage' class='file has-name'>
+                        <label class='file-label'>
+                            <input class='file-input' type='file' name='resume' />
+                            <span class='file-cta'>
+                                <span class='file-icon'>🖼</span>
+                                <span class='file-label'>Upload Your Image</span>
+                            </span>
+                            <span class='file-name'>No Image Uploaded</span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+            <footer class='modal-card-foot'>
+                <button id='saveConfigure' class='button is-success'>Save</button>
+            </footer>
+        </div>
+    </div>
+</body>
+<script src='static/js/tigsaw.js'></script>
+<script type='module'>
+import { getImage } from './static/js/get-image.js'
+
+function banScrollRefresh() {
+    let eleConfigureIcon = document.querySelector('#configureButton');
+    let eleCancelConfigure = document.querySelector('#cancelConfigure');
+    let eleSaveConfigure = document.querySelector('#saveConfigure');
+
+    let ban = function(e) {
+        e.preventDefault();
+    }
+
+    function disable() {
+        document.body.addEventListener('touchmove', ban, {passive: false});
+    }
+
+    function enable() {
+        document.body.removeEventListener('touchmove', ban, {passive: false});
+    }
+
+    disable();
+    eleConfigureIcon.addEventListener('pointerdown', enable);
+    eleSaveConfigure.addEventListener('pointerdown', disable);    
+    eleCancelConfigure.addEventListener('pointerdown', disable);    
+}
+
+let eleConfigureButton = document.querySelector('#configureButton');
+let eleConfigurePanel = document.querySelector('#configurePanel');
+let eleConfigureCancel = document.querySelector('#cancelConfigure');
+let eleConfigureSave = document.querySelector('#saveConfigure');
+let eleNextButton = document.querySelector('#nextButton');
+let imageSrc;
+
+
+function getRowCount() {
+    let rowCount = document.querySelector('#rowCount').value;
+    return rowCount;
+}
+
+function getColumnCount() {
+    let columnCount = document.querySelector('#columnCount').value;
+    return columnCount;
+}
+    
+function getPlaceStyle() {
+    let elePlaceStyle = document.querySelectorAll('input[name="placeStyle"]');
+    let placeStyle;
+    for (let i=0; i<elePlaceStyle.length; i++) {
+        if (elePlaceStyle[i].checked) {
+            placeStyle = elePlaceStyle[i].value;
+            break;
+        } else {
+            continue;
+        }
+    }
+    return placeStyle;
+}
+
+function getImageCategory() {
+  let eleImageCategory = document.querySelectorAll('input[name="image-category"]');
+  let imageCategory;
+  for (let i=0; i<eleImageCategory.length; i++) {
+    if (eleImageCategory[i].checked) {
+      imageCategory = eleImageCategory[i].value;
+      break;
+    } else {
+        continue;
+    }
+  }
+  return imageCategory;
+}
+
+
+function getUserImageListener() {
+    let eleFile = document.querySelector('#uploadImage input[type="file"]');
+    let eleImageCategory = document.querySelectorAll('input[name="image-category"]');
+    let eleFileArea = document.querySelector('#uploadImage .file-cta');
+    let eleFileName = document.querySelector('#uploadImage .file-name');
+    let eleFileLabel = document.querySelector('#uploadImage .file-label');
+    eleFile.addEventListener('change', () => {
+        Array.from(eleImageCategory).forEach(ele => ele.checked = false);
+        if (eleFile.files.length > 0) {
+            let file = eleFile.files[0];
+            eleFileName.innerText = file.name;
+            eleFileName.style.background = '#48c78e';
+            eleFileArea.style.background = '#48c78e';
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                imageSrc = reader.result;
+                let img = document.querySelector('#uploadImage img');
+                if (img) {
+                    img.src = imageSrc;
+                } else {
+                    img = new Image();
+                    img.src = imageSrc;
+                    img.id = 'thumbnail';
+                    eleFileLabel.appendChild(img);
+                    img.style.height = eleFileLabel.offsetHeight + 'px';
+                }
+            }
+        } else {
+            Array.from(eleImageCategory).forEach(ele => ele.removeAttribute('disabled'));
+            eleFileName.style.background = 'rgba(0,0,0,0)';
+            eleFileArea.style.background = '#dbdbdb';
+        }
+            
+    })
+}
+
+
+function getRandomImageListener() {
+    let eleFile = document.querySelector('#uploadImage input[type="file"]');
+    let eleFileArea = document.querySelector('#uploadImage .file-cta');
+    let eleFileName = document.querySelector('#uploadImage .file-name');
+    let eleFileLabel = document.querySelector('#uploadImage .file-label');
+    let eleImageCategory = document.querySelectorAll('input[name="image-category"]');
+    Array.from(eleImageCategory).forEach(ele => ele.addEventListener('change', () => {
+        getImageSrc();
+        eleFileName.innerText = 'No Image Uploaded';
+        eleFileName.style.background = 'rgba(0,0,0,0)';
+        eleFileArea.style.background = '#dbdbdb';
+        let eleImg = document.querySelector('#thumbnail');
+        if (eleImg) {
+          eleFileLabel.removeChild(eleImg);
+        }
+    }))
+}
+
+function getImageSrc() {
+  let imageCategory = getImageCategory();
+  if (imageCategory === 'head') {
+    imageSrc = 'https://thispersondoesnotexist.com/';
+  } else {
+    getImage(imageCategory).then(function(src) {
+      imageSrc = src;
+      eleConfigureSave.disabled = false;
+    })
+  }
+}
+
+function generatePuzzle() {
+    let rowCount = getRowCount();
+    let columnCount = getColumnCount();
+    let placeStyle = getPlaceStyle();
+    getImageSrc();
+    tig.drawPuzzle(rowCount = rowCount, columnCount = columnCount, imageSrc = imageSrc, placeStyle = placeStyle);
+    eleConfigurePanel.classList.remove('is-active');
+}
+
+
+
+eleConfigureButton.addEventListener('click', () => {
+    eleConfigureSave.disabled = true;
+    eleConfigurePanel.classList.add('is-active');
+})
+
+eleConfigureCancel.addEventListener('click', () => {
+    eleConfigurePanel.classList.remove('is-active');
+})
+
+
+getUserImageListener();
+getRandomImageListener();
+
+eleConfigureSave.addEventListener('click', generatePuzzle);
+eleNextButton.addEventListener('click', generatePuzzle);
+
+let tig = new Tigsaw({
+    container: '#container',
+    rowCount: 2,
+    columnCount: 2,
+    imageSrc: 'https://thispersondoesnotexist.com',
+    placeStyle: 'gatheredTop',
+})
+
+banScrollRefresh();
+bulmaSlider.attach();
+</script>
+</html>
