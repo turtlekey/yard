@@ -280,6 +280,7 @@ function getImageSrc() {
   let imageCategory = getImageCategory();
   if (imageCategory === 'head') {
     imageSrc = 'https://thispersondoesnotexist.com/';
+    eleConfigureSave.disabled = false;
   } else {
     getImage(imageCategory).then(function(src) {
       imageSrc = src;
