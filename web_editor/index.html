@@ -89,10 +89,10 @@ iframe {
     </label>
     <a href="#" onClick="update()">手动更新⏱</a>
     <a href="#" onClick="goFullScreen(false)">全屏页面🔍</a>
+    <a href="#" onClick="goFullScreen(true)">全屏页面备用🔎</a>
     <a href="https://www.w3school.com.cn/" class="tutorial" target="_blank">在线教程①🍊</a>
     <a href="https://developer.mozilla.org/zh-CN/" class="tutorial" target="_blank">在线教程②🍒</a>
     <a href="https://zh.javascript.info/" class="tutorial" target="_blank">在线教程③🍉</a>
-    <!--<a href="#" onClick="goFullScreen(true)">另一个全屏页面</a>-->
   </div>
   <iframe name="webpage" src="about:blank"></iframe>
 </body>
@@ -111,19 +111,22 @@ function update() {
 };
 
 function goFullScreen(newWin) {
+  let outWin;
   if (newWin) {
     outWin = window.open();
   } else {
     outWin = window.open("about:blank","html_editor");
-    outWin.focus();
-    let outty = outWin.document;
-    outty.open();
-    let htmlContent = document.querySelector("#html").value;
-    let cssContent = document.querySelector("#css").value;
-    let jsContent = document.querySelector("#js").value;
-    outty.write(htmlContent + `<style>* {padding: 0;margin: 0}${cssContent}</style>` + `<script>${jsContent}<\/script>`);
-    outty.close();
+    outWin.close();
+    outWin = window.open("about:blank","html_editor");
   }
+  outWin.focus();
+  let outty = outWin.document;
+  outty.open();
+  let htmlContent = document.querySelector("#html").value;
+  let cssContent = document.querySelector("#css").value;
+  let jsContent = document.querySelector("#js").value;
+  outty.write(htmlContent + `<style>* {padding: 0;margin: 0}${cssContent}</style>` + `<script>${jsContent}<\/script>`);
+  outty.close();
 }
 
 function realtime() {
@@ -139,3 +142,4 @@ dataArea.onkeyup=realtime;
 update();
 </script>
 </html>
+
