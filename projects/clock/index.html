@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html leng="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0" />
+  <link rel="stylesheet" href="../static/css/base.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱</text></svg>">
+  <title>钟表</title>
+  <script>
+    let w = window.innerWidth || document.documentElement.clientWidth;
+    let h = window.innerHeight || document.documentElement.clientHeight;
+    document.addEventListener("DOMContentLoaded", function() {
+      if (w > h) {
+        document.documentElement.style.setProperty("--clock-size", h * 0.6 + "px");
+        document.documentElement.style.setProperty("--watch-height", h * 0.3 + "px");
+        document.documentElement.style.setProperty("--watch-width", h * 0.3 * 3 + "px");
+      } else {
+        document.documentElement.style.setProperty("--clock-size", w * 0.95 + "px");
+        document.documentElement.style.setProperty("--watch-width", w * 0.95 + "px");
+        document.documentElement.style.setProperty("--watch-height", w * 0.95 * 0.3 + "px");
+      }
+    })
+  </script>
+</head>
+<style>
+:root {
+  --hour-color: #D24545;
+  --minute-color: #249ae1;
+  --second-color: #F6995C;
+ul {
+  list-style: none;
+}
+#container {
+  width: 100%;
+  height: 100%;
+  background: #BFD8AF;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  position: relative;
+}
+#configure {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 5%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 0.2rem;
+}
+#configure button {
+  border: 2px solid green;
+  padding: 4px 8px;
+  margin-right: 20px;
+  font-size: 1rem;
+  background: ivory;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#clock {
+  width: var(--clock-size);
+  height: var(--clock-size);
+  position: relative;
+  border-radius: 50%;
+  border: 6px solid green;
+  user-select: none;
+  font-size: calc(var(--clock-size) / 37.5);
+  background: #ddd;
+}
+#clock::before {
+  content: "";
+  position: absolute;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 90%;
+  height: 90%;
+  border-radius: 50%;
+  border: 4px solid green;
+  background: #eee;
+}
+.hour-mark,
+.hour-digit,
+.minute-mark,
+.minute-digit,
+#pin-small,
+#hour-pointer,
+#minute-pointer,
+#second-pointer {
+  width: max-content;
+  height: max-content;
+  position: absolute;
+  background: green;
+  margin: auto;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+}
+.hour-digit,
+.minute-digit {
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2em;
+}
+.hour-mark {
+  width: 0.4em;
+  height: 1.2em;
+}
+.minute-mark {
+  width: 0.25em;
+  height: 0.6em;
+  background: green;
+  z-index: 9;
+}
+.minute-digit {
+  font-size: 1.5em;
+}
+#pin-small {
+  width: 0.6em;
+  height: 0.6em;
+  background: blue;
+  border-radius: 0.3em;
+  z-index: 1000;
+}
+#hour-pointer {
+  width: 2em;
+  height: 9em;
+  background: transparent;
+  transform: translateY(-5em);
+}
+#hour-pointer .pointer-body {
+  width: 2em;
+  height: 7em;
+  background: var(--hour-color);
+}
+#hour-pointer .pointer-head {
+  width: 0;
+  height: 0;
+  border-left: 1em solid transparent;
+  border-right: 1em solid transparent;
+  border-bottom: 4em solid var(--hour-color);
+}
+#minute-pointer {
+  width: 1em;
+  height: 12em;
+  background: transparent;
+  transform: translateY(-5em);
+}
+#minute-pointer .pointer-body {
+  width: 1em;
+  height: 10em;
+  background: var(--minute-color);
+}
+#minute-pointer .pointer-head {
+  width: 0;
+  height: 0;
+  border-left: .5em solid transparent;
+  border-right: .5em solid transparent;
+  border-bottom: 2em solid var(--minute-color);
+}
+#second-pointer {
+  width: 0.6em;
+  height: 16em;
+  background: transparent;
+  transform: translateY(-5em);
+}
+#second-pointer .pointer-body {
+  width: 0.6em;
+  height: 14em;
+  background: var(--second-color);
+}
+#second-pointer .pointer-head {
+  width: 0;
+  height: 0;
+  border-left: .32em solid transparent;
+  border-right: .32em solid transparent;
+  border-bottom: 1.4em solid var(--second-color);
+}
+#watch {
+  width: var(--watch-width);
+  height: var(--watch-height);
+  font-size: calc(var(--watch-height) / 20);
+  background: #ddd;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+#watch #value {
+  width: 100%;
+  height: 60%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#watch #value-hour,
+#watch #label-hour {
+  color: var(--hour-color);
+}
+#watch #value-minute,
+#watch #label-minute {
+  color: var(--minute-color);
+}
+#watch #value-second,
+#watch #label-second {
+  color: var(--second-color);
+}
+#watch .value {
+  width: 30%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: ivory;
+}
+#watch .value button {
+  padding: 0px calc(var(--watch-width) / 10);
+  font-weight: 900;
+  font-size: 1em;
+  background: #aaa;
+}
+#watch .value h1 {
+  font-size: 8em;
+}
+#watch .delimiter {
+  width: 2em;
+  height: 8em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+.delimiter > div {
+  width: 100%;
+  height: 20%;
+  background: #ffffae;
+}
+#watch #label {
+  width: 100%;
+  height: 40%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: ivory;
+}
+#watch .label {
+  width: 30%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#watch .label h1 {
+  font-size: 5em;
+}
+
+@media screen and (max-width: 768px) {
+  #watch {
+    width: 100%;
+  }
+}
+</style>
+<body>
+  <div id="container">
+    <div id="configure">
+      <button type="button">自动更新时间</button>
+      <button type="button">隐藏秒</button>
+      <button type="button">开启音效</button>
+    </div>
+    <div id="clock">
+      <ul id="hour-mark">
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+        <li class="hour-mark"></li>
+      </ul>
+      <ul id="hour-digit">
+        <li class="hour-digit"><div>1</div></li>
+        <li class="hour-digit"><div>2</div></li>
+        <li class="hour-digit"><div>3</div></li>
+        <li class="hour-digit"><div>4</div></li>
+        <li class="hour-digit"><div>5</div></li>
+        <li class="hour-digit"><div>6</div></li>
+        <li class="hour-digit"><div>7</div></li>
+        <li class="hour-digit"><div>8</div></li>
+        <li class="hour-digit"><div>9</div></li>
+        <li class="hour-digit"><div>10</div></li>
+        <li class="hour-digit"><div>11</div></li>
+        <li class="hour-digit"><div>12</div></li>
+      </ul>
+      <ul id="minute-mark">
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+        <li class="minute-mark"></li>
+      </ul>
+      <ul id="minute-digit">
+        <li class="minute-digit"><div>0</div></li>
+        <li class="minute-digit"><div>1</div></li>
+        <li class="minute-digit"><div>2</div></li>
+        <li class="minute-digit"><div>3</div></li>
+        <li class="minute-digit"><div>4</div></li>
+        <li class="minute-digit"><div>5</div></li>
+        <li class="minute-digit"><div>6</div></li>
+        <li class="minute-digit"><div>7</div></li>
+        <li class="minute-digit"><div>8</div></li>
+        <li class="minute-digit"><div>9</div></li>
+        <li class="minute-digit"><div>10</div></li>
+        <li class="minute-digit"><div>11</div></li>
+        <li class="minute-digit"><div>12</div></li>
+        <li class="minute-digit"><div>13</div></li>
+        <li class="minute-digit"><div>14</div></li>
+        <li class="minute-digit"><div>15</div></li>
+        <li class="minute-digit"><div>16</div></li>
+        <li class="minute-digit"><div>17</div></li>
+        <li class="minute-digit"><div>18</div></li>
+        <li class="minute-digit"><div>19</div></li>
+        <li class="minute-digit"><div>20</div></li>
+        <li class="minute-digit"><div>21</div></li>
+        <li class="minute-digit"><div>22</div></li>
+        <li class="minute-digit"><div>23</div></li>
+        <li class="minute-digit"><div>24</div></li>
+        <li class="minute-digit"><div>25</div></li>
+        <li class="minute-digit"><div>26</div></li>
+        <li class="minute-digit"><div>27</div></li>
+        <li class="minute-digit"><div>28</div></li>
+        <li class="minute-digit"><div>29</div></li>
+        <li class="minute-digit"><div>30</div></li>
+        <li class="minute-digit"><div>31</div></li>
+        <li class="minute-digit"><div>32</div></li>
+        <li class="minute-digit"><div>33</div></li>
+        <li class="minute-digit"><div>34</div></li>
+        <li class="minute-digit"><div>35</div></li>
+        <li class="minute-digit"><div>36</div></li>
+        <li class="minute-digit"><div>37</div></li>
+        <li class="minute-digit"><div>38</div></li>
+        <li class="minute-digit"><div>39</div></li>
+        <li class="minute-digit"><div>40</div></li>
+        <li class="minute-digit"><div>41</div></li>
+        <li class="minute-digit"><div>42</div></li>
+        <li class="minute-digit"><div>43</div></li>
+        <li class="minute-digit"><div>44</div></li>
+        <li class="minute-digit"><div>45</div></li>
+        <li class="minute-digit"><div>46</div></li>
+        <li class="minute-digit"><div>47</div></li>
+        <li class="minute-digit"><div>48</div></li>
+        <li class="minute-digit"><div>49</div></li>
+        <li class="minute-digit"><div>50</div></li>
+        <li class="minute-digit"><div>51</div></li>
+        <li class="minute-digit"><div>52</div></li>
+        <li class="minute-digit"><div>53</div></li>
+        <li class="minute-digit"><div>54</div></li>
+        <li class="minute-digit"><div>55</div></li>
+        <li class="minute-digit"><div>56</div></li>
+        <li class="minute-digit"><div>57</div></li>
+        <li class="minute-digit"><div>58</div></li>
+        <li class="minute-digit"><div>59</div></li>
+      </ul>
+      <div id="pin-small"></div>
+      <div id="hour-pointer">
+        <div class="pointer-head"></div>
+        <div class="pointer-body"></div>
+      </div>
+      <div id="minute-pointer">
+        <div class="pointer-head"></div>
+        <div class="pointer-body"></div>
+      </div>
+      <div id="second-pointer">
+        <div class="pointer-head"></div>
+        <div class="pointer-body"></div>
+      </div>
+    </div>
+    <div id="watch">
+      <div id="value">
+        <div id="value-hour" class="value">
+          <button type="button" id="add-hour">+</button>
+          <h1></h1>
+          <button type="button" id="minus-hour">-</button>
+        </div>
+        <div class="delimiter">
+          <div></div>
+          <div></div>
+        </div>
+        <div id="value-minute" class="value">
+          <button type="button" id="add-minute">+</button>
+          <h1></h1>
+          <button type="button" id="minus-minute">-</button>
+        </div>
+        <div class="delimiter">
+          <div></div>
+          <div></div>
+        </div>
+        <div id="value-second" class="value">
+          <button type="button" id="add-second">+</button>
+          <h1></h1>
+          <button type="button" id="minus-second">-</button>
+        </div>
+      </div>
+      <div id="label">
+        <div id="label-hour" class="label">
+          <h1>时</h1>
+        </div>
+        <div id="label-minute" class="label">
+          <h1>分</h1>
+        </div>
+        <div id="label-second" class="label">
+          <h1>秒</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  let eleHourValue = document.querySelector("#value-hour h1");
+  let eleMinuteValue = document.querySelector("#value-minute h1");
+  let eleSecondValue = document.querySelector("#value-second h1");
+  let eleHourPointer = document.querySelector("#hour-pointer");
+  let eleMinutePointer = document.querySelector("#minute-pointer");
+  let eleSecondPointer = document.querySelector("#second-pointer");
+  let eleSecondMarks = document.querySelectorAll(".minute-digit div");
+  let eleHourMarks = document.querySelectorAll(".hour-digit div");
+  let elePin = document.querySelector("#pin-small");
+
+  let eleClickAudio = new Audio("static/audio/click.mp3");
+  let eleHourAudio = new Audio("static/audio/hour.mp3");
+  let eleMinuteAudio = new Audio("static/audio/minute.mp3");
+  let eleSecondAudio = new Audio("static/audio/second.mp3");
+  let isHideSecond = false;
+  let isUpdateTime = false;
+  let isAudio = false;
+
+  function updateWatchTime() {
+    let now = new Date();
+    let hour = now.getHours();
+    hour = hour > 12 ? hour - 12 : hour;
+    let minute = now.getMinutes();
+    let second = now.getSeconds();
+    
+    eleHourValue.innerText = hour;
+    eleMinuteValue.innerText = minute;
+    eleSecondValue.innerText = second;
+    if (isAudio) {
+      eleSecondAudio.play();
+      if (second === 0) {
+        eleMinuteAudio.play();
+      }
+      if (minute === 0) {
+        eleHourAudio.play();
+      }
+    }
+  }
+
+  function updateClockTime() {
+    let now = new Date();
+    let hour = now.getHours();
+    hour = hour > 12 ? hour - 12 : hour;
+    let minute = now.getMinutes();
+    let second = now.getSeconds();
+
+    eleHourPointer.style.transform = `rotate(${hour*30}deg) translateY(-5em)`;
+    eleMinutePointer.style.transform = `rotate(${minute*6}deg) translateY(-5em)`;
+    eleSecondPointer.style.transform = `rotate(${second*6}deg) translateY(-5em)`;
+
+    [...eleSecondMarks].forEach((ele) => {
+      ele.style.color = "#000";
+      ele.style.fontWeight = "400";
+    });
+    [...eleHourMarks].forEach((ele) => {
+      ele.style.color = "#000";
+      ele.style.fontWeight = "400";
+    });
+
+    if (!isHideSecond) {
+      eleSecondMarks[second].style.color = "var(--second-color)";
+      eleSecondMarks[second].style.fontWeight = "900";
+    }
+    eleSecondMarks[minute].style.color = "var(--minute-color)";
+    eleSecondMarks[minute].style.fontWeight = "900";
+    eleHourMarks[hour-1].style.color = "var(--hour-color)";
+    eleHourMarks[hour-1].style.fontWeight = "900";
+  }
+
+  function toggleSecond() {
+    let eleValueSecond = document.querySelector("#value-second");
+    let eleLabelSecond = document.querySelector("#label-second");
+    let eleDelimiter = document.querySelectorAll(".delimiter")[1];
+
+    if (isHideSecond) {
+      eleValueSecond.style.visibility = "visible";
+      eleLabelSecond.style.visibility = "visible";
+      eleDelimiter.style.visibility = "visible";
+      eleSecondPointer.style.visibility = "visible";
+      isHideSecond = false;
+    } else {
+      eleValueSecond.style.visibility = "hidden";
+      eleLabelSecond.style.visibility = "hidden";
+      eleDelimiter.style.visibility = "hidden";
+      eleSecondPointer.style.visibility = "hidden";
+      [...eleSecondMarks].forEach((ele) => {
+        ele.style.color = "#000";
+        ele.style.fontWeight = 500;
+      })
+      isHideSecond = true;
+      isAudio = false;
+      document.querySelector("#configure button:nth-child(3)").style.background = "ivory";
+   
+    }
+  }
+
+  function changeTimeListener() {
+    let eleButtons = document.querySelectorAll("#value button");
+    [...eleButtons].forEach((ele) => {
+      ele.addEventListener("click", () => {
+        eleClickAudio.play();
+        switch (ele.id) {
+          case "add-hour":
+            eleHourValue.innerText = (+eleHourValue.innerText + 1) > 12 ? +eleHourValue.innerText + 1 - 12 : +eleHourValue.innerText + 1;
+            break;
+          case "minus-hour":
+            eleHourValue.innerText = (+eleHourValue.innerText - 1) < 1 ? 12 : +eleHourValue.innerText - 1; 
+            break;
+          case "add-minute":
+            eleMinuteValue.innerText = (+eleMinuteValue.innerText + 1) % 60;
+            break;
+          case "minus-minute":
+            eleMinuteValue.innerText = (+eleMinuteValue.innerText - 1) < 0 ? 59 : eleMinuteValue.innerText - 1;
+            break;
+          case "add-second":
+            eleSecondValue.innerText = (+eleSecondValue.innerText + 1) % 60;
+            break;
+          case "minus-second":
+            eleSecondValue.innerText = (+eleSecondValue.innerText - 1) < 0 ? 59 : eleSecondValue.innerText - 1;
+            break;
+          default:
+            console.log("hello world");
+        }
+      })
+    })
+  }
+  
+  function toggleSecondListener() {
+    document.querySelector("#configure button:nth-child(2)").addEventListener("click", (e) => {
+      toggleSecond();
+      if (isHideSecond) {
+        e.target.style.background = "green";
+      } else {
+        e.target.style.background = "ivory";
+      }
+    });
+  }
+
+  function toggleUpdateTimeListener() {
+    let clockIntervalID = null;
+    let watchIntervalID = null;
+    document.querySelector("#configure button:nth-child(1)").addEventListener("click", (e) => {
+      if (isUpdateTime) {
+        clearInterval(watchIntervalID);
+        clearInterval(clockIntervalID);
+        e.target.style.background = "ivory";
+        isUpdateTime = false;
+      } else {
+        watchIntervalID = setInterval(updateWatchTime, 1000);
+        clockIntervalID = setInterval(updateClockTime, 1000);
+        e.target.style.background = "green";
+        isUpdateTime = true;
+      }
+    })
+  }
+
+  function makeMark() {
+    for (let i=0; i<60; i++) {
+      let eleMinuteMark = document.querySelector(`#clock .minute-mark:nth-child(${i+1})`);
+      eleMinuteMark.style.transform = `rotate(${i*6}deg) translateY(16em)`;
+
+      let eleMinuteDigitContainer = document.querySelector(`#clock .minute-digit:nth-child(${i+1})`);
+      eleMinuteDigitContainer.style.transform = `rotate(${i*6 - 180}deg) translateY(11.6em)`;
+
+      let eleMinuteDigit = document.querySelector(`#clock .minute-digit:nth-child(${i+1}) div`);
+      eleMinuteDigit.style.transform = `rotate(${-i*6-180}deg)`;
+    }
+
+    for (let j=0; j<12; j++) {
+      let eleHourMark = document.querySelector(`#clock .hour-mark:nth-child(${j+1})`);
+      eleHourMark.style.transform = `rotate(${j*30}deg) translateY(15.8em)`;
+
+      let eleHourDigitContainer = document.querySelector(`#clock .hour-digit:nth-child(${j+1})`);
+      eleHourDigitContainer.style.transform = `rotate(${j*30 - 150}deg) translateY(7.1em)`;
+
+      let eleHourDigit = document.querySelector(`#clock .hour-digit:nth-child(${j+1}) div`);
+      eleHourDigit.style.transform = `rotate(${-j*30 - 210}deg)`;
+    }
+  }
+
+  function toggleAudioListener() {
+    document.querySelector("#configure button:nth-child(3)").addEventListener("click", (e) => {
+      if (isAudio) {
+        e.target.style.background = "ivory";
+        isAudio = false;
+      } else {
+        e.target.style.background = "green";
+        isAudio = true;
+      }
+    })
+  }
+
+  function dragHourPointerListener() {
+    function moveHourPointer(e) {
+      [...eleHourMarks].forEach((ele) => {
+        ele.style.color = "#000";
+        ele.style.fontWeight = 500;
+      })
+      let rect = elePin.getBoundingClientRect();
+      let centerX = rect.x + rect.width / 2;
+      let centerY = rect.y + rect.height / 2;
+      let x = centerX - e.clientX;
+      let y = centerY - e.clientY;
+      let angle = Math.atan2(y, x) * (180 / Math.PI);
+      eleHourPointer.style.transform = `rotate(${angle - 90}deg) translateY(-5em)`;
+    }    
+    eleHourPointer.addEventListener("pointerdown", () => {
+      document.addEventListener("pointermove", moveHourPointer);
+    })
+    document.addEventListener("pointerup", () => {
+      document.removeEventListener("pointermove", moveHourPointer);
+    })
+  }
+
+  function dragMinutePointerListener() {
+    function moveMinutePointer(e) {
+      [...eleSecondMarks].forEach((ele) => {
+        ele.style.color = "#000";
+        ele.style.fontWeight = 500;
+      })
+      let rect = elePin.getBoundingClientRect();
+      let centerX = rect.x + rect.width / 2;
+      let centerY = rect.y + rect.height / 2;
+      let x = centerX - e.clientX;
+      let y = centerY - e.clientY;
+      let angle = Math.atan2(y, x) * (180 / Math.PI);
+      let rotateAngle = Math.floor((angle - 90) / 6) * 6;
+      eleMinutePointer.style.transform = `rotate(${rotateAngle}deg) translateY(-5em)`;
+    }    
+    eleMinutePointer.addEventListener("pointerdown", () => {
+      document.addEventListener("pointermove", moveMinutePointer);
+    })
+    document.addEventListener("pointerup", () => {
+      document.removeEventListener("pointermove", moveMinutePointer);
+    })
+  }
+  
+  function dragSecondPointerListener() {
+    function moveSecondPointer(e) {
+      [...eleSecondMarks].forEach((ele) => {
+        ele.style.color = "#000";
+        ele.style.fontWeight = 500;
+      })
+      let rect = elePin.getBoundingClientRect();
+      let centerX = rect.x + rect.width / 2;
+      let centerY = rect.y + rect.height / 2;
+      let x = centerX - e.clientX;
+      let y = centerY - e.clientY;
+      let angle = Math.atan2(y, x) * (180 / Math.PI);
+      let rotateAngle = Math.floor((angle - 90) / 6) * 6;
+      eleSecondPointer.style.transform = `rotate(${rotateAngle}deg) translateY(-5em)`;
+    }    
+    eleSecondPointer.addEventListener("pointerdown", () => {
+      document.addEventListener("pointermove", moveSecondPointer);
+    })
+    document.addEventListener("pointerup", () => {
+      document.removeEventListener("pointermove", moveSecondPointer);
+    })
+  }
+  dragHourPointerListener();
+  dragMinutePointerListener();
+  dragSecondPointerListener();
+  makeMark();
+  toggleSecondListener();
+  toggleAudioListener();
+  changeTimeListener();
+  updateClockTime();
+  updateWatchTime();
+  toggleUpdateTimeListener();
+
+</script>
+</html>
